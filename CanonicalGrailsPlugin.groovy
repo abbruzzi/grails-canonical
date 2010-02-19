@@ -22,7 +22,8 @@ class CanonicalGrailsPlugin {
     // resources that are excluded from plugin packaging
     def pluginExcludes = [
             "grails-app/views/**",
-            "grails-app/controllers/ExampleController.groovy"
+            "grails-app/controllers/ExampleController.groovy",
+            "grails-app/conf/Config.groovy"
     ]
 
     // TODO Fill in these fields

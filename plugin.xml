@@ -4,18 +4,19 @@
   <title>Canonical Tagging Plugin for SEO</title>
   <description>\
     	Enables auto-resolution of canonical link metadata for SEO optimization.
-    	Addition of a single taglib call to a master layout will add SEO-friendly
-    	canonical URL metadata to your pages, relying on Grails UrlMappings to
-    	derive a single absolute canonical URL for any request. Query parameters are sorted,
-    	and can individual parameters can optionally be excluded from the canonical URL
+    	Addition of a taglib call to a master layout will add SEO-friendly
+    	canonical URL metadata to your pages (&lt;canonical:show /&gt;, relying on Grails UrlMappings to
+    	derive an absolute canonical URL for the current request. Query parameters are sorted,
+    	and individual parameters can optionally be excluded 
     	globally and for specific requests (for example, a session parameter
-    	or marketing-related tracking parameters.) Finally, auto-resolution can be overriden
-    	at the request-level with a specific URI if and when needed.
-    	See (google blog) for details on this practice.
+    	or marketing-related tracking parameters can be excluded from canonical URLs.)
+    	Finally, auto-resolution can be overriden at the request-level with a specific URI if and when needed.
+    	See http://googlewebmastercentral.blogspot.com/2009/02/specify-your-canonical.html for details on this practice.
     </description>
   <documentation>http://grails.org/plugin/canonical</documentation>
   <resources>
     <resource>BuildConfig</resource>
+    <resource>Config</resource>
     <resource>DataSource</resource>
     <resource>UrlMappings</resource>
     <resource>ExampleController</resource>

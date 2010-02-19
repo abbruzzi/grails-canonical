@@ -1,0 +1,117 @@
+/*   Copyright 2010 Jeffrey M. Abbruzzi
+*
+*   Licensed under the Apache License, Version 2.0 (the "License");
+*   you may not use this file except in compliance with the License.
+*   You may obtain a copy of the License at
+*
+*       http://www.apache.org/licenses/LICENSE-2.0
+*
+*   Unless required by applicable law or agreed to in writing, software
+*   distributed under the License is distributed on an "AS IS" BASIS,
+*   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+*   See the License for the specific language governing permissions and
+*   limitations under the License.
+*/
+
+GRAILS CANONICAL PLUGIN
+
+For Search Engine Optimization, it's preferable to align on a single
+URL for a given page, rather than enabling multiple URLs to resolve to the
+same content. Under Grails, it's very common to have multiple equivalent URLs.
+One way to avoid negative impacts due to 'duplicate content' is to
+add 'canonical' link tags to each page. See the Google Blog for more details:
+
+SHOW CANONICAL
+
+This plugin makes it easy to add 'canonical' link tags to each page in a Grails
+application. After installing the plugin, the following tag can be added
+to the <head> section of a layout (or wherever head metadata is managed):
+
+<head>
+...
+<canonical:show />
+...
+</head>
+
+This will map the current controller, action and paramters back to a
+'canonical' URL, taking UrlMappings into consideration. For requests without
+a controller and action, the actual request URI is asumed to be the desired
+canonical. It orders the query parameters, so that pages with the same parameters
+displayed in a different order display the same tag. It also uses the absolute URL, 
+to address differences that may arise when two different domain names resolve to the same
+application pages.
+
+This is all that may be required, but the plugin enables some other refinements.
+
+CAUTION: This plugin generates absolute URLs for the canonical tags.
+Confirm that your grails.serverURL is set properly, such that
+absolute URLs are being properly constructed.
+
+EXCLUDE PARAMS
+
+In some cases, query parameters are material to the page content, such as
+an ID parameter. In other cases, the qeury parameter may be required for
+operations, but is not material to the page content and should be 'ignored' by
+search engines. In the latter case, these parameters can be excluded from
+the 'canonical' URLs. The exclusion statement can be applied to all requests by,
+for example, including it in a global layout. Or, it can be called in a 
+controller or template to apply to a smaller set of requests. To exclude 
+parameters use the following in a layout or template:
+<canonical:exclude params="['session', 'source']" />
+
+SET URI
+
+Finally, in some cases it may be preferable to override automatuc resolution
+of the canonical URL with a specific URI. In this case, use the following
+in the page template (or the equivalent from a controller):
+<canonical:set uri="/some/other/place" /> 
+
+EXAMPLES
+
+Here are some examples of typically equivalent URLs, and how they map to a
+single canonical URL:
+
+Given a controller called 'example' and an action called 'simple', and the
+common mappping:
+
+      "/$controller/$action?/$id?"{
+	      constraints {
+			 // apply constraints here
+		  }
+	  }
+
+The following URIs:
+        /example/simple
+        /example/simple/
+        /example/simple.html
+        /example?action=simple
+would resolve to: <link rel="canonical" href="http://www.domain.com/example/simple"/>
+
+Due to parameter ordering, the following URIs:
+        /example/simple?a=1&z=2
+        /example/simple?z=2&a=1
+would both resolve to: <link rel="canonical" href="http://www.domain.com/example/simple?a=1&z=2"/>
+
+Given a mapping like:
+
+	  "/someMapping/$id"(
+		  controller: 'example',
+		  action: 'mapped'
+	  }
+	  
+The following URIs:
+        /example/mapped?id=extra
+        /example/mapped/extra
+        /someMapping/extra
+would all resolve to: <link rel="canonical" href="http://www.domain.com/someMapping/extra"/>
+
+For an exclusion list containing 'session' and 'source',
+the following URIs:
+        /example/simple?a=1&source=fb&z=2
+        /example/simple?z=2&session=12345&a=1&source=fb
+would both resolve to: <link rel="canonical" href="http://www.domain.com/example/simple?a=1&z=2"/>
+
+
+Note that if you are externally rewriting URLs outside of UrlMappings,
+using a tool such as mod_rewrite, this plugin may not produce the desired result:
+the plugin is unaware of those rewrites.

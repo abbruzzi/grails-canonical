@@ -24,19 +24,32 @@ class CanonicalTagLib {
 		def uri = request[URI_ATTRIBUTE]
 		if (uri) {
 			link = uri = g.createLink(absolute:true, uri:uri)
-		} else if (controllerName && actionName) {
+		} else {
 			// otherwise resolve using reverse mapping
 		    // first clearing 'excluded' params
-			request[EXCLUDE_ATTRIBUTE].each { 
-				params.remove(it)
+			if (params) {
+				request[EXCLUDE_ATTRIBUTE].each { 
+					params.remove(it)
+				}
 			}
 			// sort the params so they are always in the same order,
 			// thus 'canonical'
-			def sortedParams = params.empty ? params : new TreeMap(params)
-			link = g.createLink(absolute:true, controller:controllerName, action:actionName, params:sortedParams) 
+			def sortedParams = params.empty ? null : new TreeMap(params)
+			if (controllerName && actionName) {
+				link = g.createLink(absolute:true, controller:controllerName, action:actionName, params:sortedParams) 
+			} else {
+				// otherwise, use the current request URL
+			    def path = request.servletPath
+				if (request.pathInfo)
+					path += request.pathInfo
+				if (sortedParams)
+					path += "?${sortedParams.collect {k, v -> "${k.encodeAsURL()}=${v.encodeAsURL()}" }.join('&')}"
+				link = g.createLink(absolute:true, uri:path)
+				
+			}
 		}
 		if (link) {
-			out << '<link rel="canonical" href="' + link + '"/>'
+			out << '<link rel="canonical" href="' << link << '"/>'
 		}
 	}
 	
