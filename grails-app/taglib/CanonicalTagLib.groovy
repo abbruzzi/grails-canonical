@@ -14,8 +14,10 @@
 */
 class CanonicalTagLib {
 	static namespace = 'canonical'
-	static final URI_ATTRIBUTE = 'canonical.uri'
-	static final EXCLUDE_ATTRIBUTE = 'canonical.exclude'
+	static final CANONICAL_PARAM = 'canonical'
+	static final URI_ATTRIBUTE = 'plugins.canonical.uri'
+	static final EXCLUDE_ATTRIBUTE = 'plugins.canonical.exclude'
+
 		
 	def show = { attrs, body ->
 		def link
@@ -38,14 +40,22 @@ class CanonicalTagLib {
 			if (controllerName && actionName) {
 				link = g.createLink(absolute:true, controller:controllerName, action:actionName, params:sortedParams) 
 			} else {
-				// otherwise, use the current request URL
-			    def path = request.servletPath
-				if (request.pathInfo)
-					path += request.pathInfo
-				if (sortedParams)
+				def path
+				if (params[CANONICAL_PARAM]) { // otherwise use canonical param if provided
+					path = params[CANONICAL_PARAM]
+					params.remove(CANONICAL_PARAM)
+				} else if (!grailsApplication.config.plugins.canonical.disableResolveFromRequest) { 
+					// otherwise, resolve based on the current request URL, unless configured not to
+					path = request.servletPath
+					if (request.pathInfo)
+						path += request.pathInfo
+				} else { // otherwise don't show canonical
+					return 
+				}
+				if (sortedParams) {
 					path += "?${sortedParams.collect {k, v -> "${k.encodeAsURL()}=${v.encodeAsURL()}" }.join('&')}"
+				}
 				link = g.createLink(absolute:true, uri:path)
-				
 			}
 		}
 		if (link) {

@@ -12,6 +12,7 @@ class UrlMappings {
 	  )
 	
       "/"(view:"/index")
+	  "/mapme/$id"(view:"/index", canonical:"/mapme/$id")
 	  "500"(view:'/error')
 	}
 }

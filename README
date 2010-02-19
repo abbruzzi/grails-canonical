@@ -35,11 +35,11 @@ to the <head> section of a layout (or wherever head metadata is managed):
 
 This will map the current controller, action and paramters back to a
 'canonical' URL, taking UrlMappings into consideration. For requests without
-a controller and action, the actual request URI is asumed to be the desired
-canonical. It orders the query parameters, so that pages with the same parameters
-displayed in a different order display the same tag. It also uses the absolute URL, 
-to address differences that may arise when two different domain names resolve to the same
-application pages.
+a controller and action, the actual request URI is assumed to be the desired
+canonical (this can be disabled). It orders the query parameters, 
+so that pages with the same parameters displayed in a different order display the same tag. 
+It also uses the absolute URL, to address differences that may arise when two different 
+domain names resolve to the same application pages.
 
 This is all that may be required, but the plugin enables some other refinements.
 
@@ -59,12 +59,44 @@ controller or template to apply to a smaller set of requests. To exclude
 parameters use the following in a layout or template:
 <canonical:exclude params="['session', 'source']" />
 
+VIEW MAPPINGS
+
+For view mappings, there is no controller and action involved.
+Therefore=, reverse resolution of the 'canonical' URL is not possible.
+In these cases, the URI can be set directly (see below), the URL can be
+resolved based on the current request (see below), or, a parameter can
+be added to the mapping which will be used as the base URI. The query String
+is rebuilt (and properly escaped) from the request, and parameter exclusions
+are applied. For a mapping in URLMappings.groovy, the feature can be used in this
+fashion:
+
+	"/index"(view:"/index", canonical:"/")
+
+RESOLVE FROM REQUEST
+
+If there is no action/controller pair, and no canonical paramter set from
+URLMappings.groovy, the plugin will try to determine the path using the
+current request. The path will be built from the HttpServletRequest, the parameters
+will be built from the current parameter list, and exlcusions applied. 
+The query parameters are then URL-escaped and attached to the path
+
+This 'best guess' may work well in some systems, and abysmally in others.
+It can be fully disabled by setting:
+	plugins.canonical.disableResolveFromRequest = true
+	
+If turned off, the direct URI set method can still be used to apply canoncial URLs
+to requests of this type.
+	
+
 SET URI
 
 Finally, in some cases it may be preferable to override automatuc resolution
 of the canonical URL with a specific URI. In this case, use the following
 in the page template (or the equivalent from a controller):
 <canonical:set uri="/some/other/place" /> 
+Note that this is a true override:
+no query string building, parameter exclusions or URL escaping is applied: the URI is used
+exactly as provided.
 
 EXAMPLES
 
